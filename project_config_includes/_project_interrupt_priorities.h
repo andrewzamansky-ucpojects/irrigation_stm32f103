@@ -1,0 +1,24 @@
+/*
+ * file : _project_interrupt_priorities.h
+ *
+ *
+ */
+
+#ifndef _project_interrupt_priorities_h
+#define _project_interrupt_priorities_h
+
+#include "cpu_config.h"
+
+#define  MAX_INTERRUPT_PRIO_FOR_OS_SYSCALLS  INTERRUPT_PRIORITY_ABOVE_LOWEST(10)
+
+#define INTERRUPT_PRIORITY_FOR_USBD    INTERRUPT_PRIORITY_ABOVE_LOWEST(4)
+#define INTERRUPT_PRIORITY_FOR_DMA     INTERRUPT_PRIORITY_ABOVE_LOWEST(4)
+#define INTERRUPT_PRIORITY_FOR_UART    INTERRUPT_PRIORITY_ABOVE_LOWEST(2)
+#define INTERRUPT_PRIORITY_FOR_GPIO    INTERRUPT_PRIORITY_ABOVE_LOWEST(2)
+#define INTERRUPT_PRIORITY_FOR_I2C     INTERRUPT_PRIORITY_ABOVE_LOWEST(3)
+#define INTERRUPT_PRIORITY_FOR_SPI     INTERRUPT_PRIORITY_ABOVE_LOWEST(3)
+
+
+/***********************************/
+
+#endif /* */

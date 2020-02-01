@@ -1,0 +1,10 @@
+*.o
+*.o.asm
+*.O.asm
+z_auto_generated_files
+zOBJ
+zOUT
+zOUT_history
+*.bak
+*.old
+zIDE/
