@@ -54,3 +54,18 @@
 #define DT_DEV_MODULE                    semihosting
 
 #include ADD_CURRENT_DEV
+
+
+/***********************************/
+/********** control_pin1_dev  ********/
+#define DT_DEV_NAME                      control_pin1_dev
+#define DT_DEV_MODULE                    gpio_stm32f10x
+
+#define GPIO_STM32F10X_DT_PORT         GPIO_STM32F10X_API_PORT_A
+#define GPIO_STM32F10X_DT_PINS             {3}
+#define GPIO_STM32F10X_DT_PINS_IDLE_STATE  {0}
+#define GPIO_STM32F10X_DT_MODE         GPIO_STM32F10X_API_MODE_OUT_PP
+
+#include ADD_CURRENT_DEV
+
+

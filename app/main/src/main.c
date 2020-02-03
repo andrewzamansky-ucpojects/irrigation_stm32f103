@@ -3,11 +3,6 @@
  *   file  :  main.cpp
  *
  */
-
-
-
-/***************   includes    *******************/
-
 #include "_project_typedefs.h"
 #include "_project_defines.h"
 #include "_project_func_declarations.h"
@@ -17,21 +12,15 @@
 
 #include "os_wrapper.h"
 #include "adc_api.h"
+#include "gpio_api.h"
 
 #define DEBUG
 #include "PRINTF_api.h"
 
-/***************   defines    *******************/
-
-
-/***************   typedefs    *******************/
-
-
-/**********   external variables    **************/
-
-/***********   loacal variables    **************/
 
 extern struct dev_desc_t * adc_dev;
+extern struct dev_desc_t * control_pin1_dev;
+
 /**
  * test_thread_func()
  *
@@ -51,6 +40,7 @@ static void test_thread_func(void * aHandle)
 	}
 
 	DEV_IOCTL_0_PARAMS(adc_dev, IOCTL_DEVICE_START);
+	DEV_IOCTL_0_PARAMS(control_pin1_dev, IOCTL_DEVICE_START);
 
 	cnt = 0;
 	while (1)
@@ -58,6 +48,15 @@ static void test_thread_func(void * aHandle)
 		cnt++;
 		DEV_IOCTL_1_PARAMS(adc_dev, IOCTL_ADC_GET_CURRENT_VALUE_mV, &adc_val);
 		PRINTF_DBG("%05d  %d.%03dV\r\n", cnt, adc_val / 1000, adc_val % 1000);
+
+		if (0 == (cnt % 10))
+		{
+			DEV_IOCTL_0_PARAMS(control_pin1_dev, IOCTL_GPIO_PIN_SET );
+		}
+		else
+		{
+			DEV_IOCTL_0_PARAMS(control_pin1_dev, IOCTL_GPIO_PIN_CLEAR );
+		}
 
 		while (PRINTF_API_print_from_debug_buffer(64));
 
