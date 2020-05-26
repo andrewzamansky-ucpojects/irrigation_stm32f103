@@ -13,6 +13,7 @@
 /******   task priorities *********/
 #define HEARTBEAT_THREAD_PRIORITY           (tskIDLE_PRIORITY + 1)
 #define TEST_THREAD_PRIORITY                (tskIDLE_PRIORITY + 4)
+#define STATUS_REPORT_THREAD_PRIORITY       (tskIDLE_PRIORITY + 3)
 /*********************************/
 
 
@@ -21,6 +22,7 @@
 /******   task stack sizes *********/
 #define HEARTBEAT_STACK_SIZE_BYTES              DEFINE_STACK_SIZE( 800 )
 #define TEST_THREAD_STACK_SIZE_BYTES            DEFINE_STACK_SIZE( 1000 )
+#define STATUS_REPORT_THREAD_STACK_SIZE_BYTES   DEFINE_STACK_SIZE( 800 )
 /***********************************/
 
 

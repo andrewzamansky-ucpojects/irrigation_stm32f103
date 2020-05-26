@@ -9,11 +9,13 @@
 #define DT_DEV_MODULE                      clock_control_stm32f10x
 
 #define CLOCK_CONTROL_STM32f10X_DT_HIRC_RATE           8000000
+#define CLOCK_CONTROL_STM32f10X_DT_LIRC_RATE           40000
 //#define CLOCK_CONTROL_STM32f10X_DT_XTAL_RATE           8000000
 #define CLOCK_CONTROL_STM32f10X_DT_SYSCLK_SRC_CLK_DEV    stm32f10x_hsirc_clk_dev//stm32f10x_hsirc_clk_dev//stm32f10x_xtal_clk_dev
 //#define CLOCK_CONTROL_STM32f10X_DT_PLL_SRC_CLK_DEV     stm32f10x_hsirc_clk_dev//stm32f10x_xtal_clk_dev
 //#define CLOCK_CONTROL_STM32f10X_DT_PLL_RATE        72000000
 #define CLOCK_CONTROL_STM32f10X_DT_HCLK_RATE       8000000//72000000
+#define CLOCK_CONTROL_STM32f10X_DT_APB1_RATE          8000000
 #define CLOCK_CONTROL_STM32f10X_DT_APB2_RATE          8000000
 
 #include ADD_CURRENT_DEV
@@ -49,6 +51,29 @@
 
 
 /***********************************/
+/********** rtc_dev ********/
+#define DT_DEV_NAME                        rtc_dev
+#define DT_DEV_MODULE                      rtc_stm32f10x
+
+#define RTC_STM32F10X_DT_SRC_CLOCK_DEV      stm32f10x_lsirc_clk_dev
+#define RTC_STM32F10X_DT_COUNTER_RATE_HZ    1//625
+
+#include ADD_CURRENT_DEV
+
+
+
+
+/***********************************/
+/********** pwr_dev ********/
+#define DT_DEV_NAME                        pwr_dev
+#define DT_DEV_MODULE                      pwr_stm32f10x
+
+#include ADD_CURRENT_DEV
+
+
+
+
+/***********************************/
 /********** semihosting_dev ********/
 #define DT_DEV_NAME                      semihosting_dev
 #define DT_DEV_MODULE                    semihosting
@@ -57,12 +82,25 @@
 
 
 /***********************************/
-/********** control_pin1_dev  ********/
-#define DT_DEV_NAME                      control_pin1_dev
+/********** motor_control_pin_dev  ********/
+#define DT_DEV_NAME                      motor_control_pin_dev
 #define DT_DEV_MODULE                    gpio_stm32f10x
 
 #define GPIO_STM32F10X_DT_PORT         GPIO_STM32F10X_API_PORT_A
 #define GPIO_STM32F10X_DT_PINS             {3}
+#define GPIO_STM32F10X_DT_PINS_IDLE_STATE  {0}
+#define GPIO_STM32F10X_DT_MODE         GPIO_STM32F10X_API_MODE_OUT_PP
+
+#include ADD_CURRENT_DEV
+
+
+/***********************************/
+/********** blink_led_dev  ********/
+#define DT_DEV_NAME                      blink_led_dev
+#define DT_DEV_MODULE                    gpio_stm32f10x
+
+#define GPIO_STM32F10X_DT_PORT         GPIO_STM32F10X_API_PORT_C
+#define GPIO_STM32F10X_DT_PINS             {13}
 #define GPIO_STM32F10X_DT_PINS_IDLE_STATE  {0}
 #define GPIO_STM32F10X_DT_MODE         GPIO_STM32F10X_API_MODE_OUT_PP
 
