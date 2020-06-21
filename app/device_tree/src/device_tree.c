@@ -38,12 +38,24 @@
 
 
 /***********************************/
-/********** adc_dev ********/
-#define DT_DEV_NAME                        adc_dev
+/********** adc_humidity_dev ********/
+#define DT_DEV_NAME                        adc_humidity_dev
 #define DT_DEV_MODULE                      adc_stm32f10x
 
 #define ADC_STM32F10X_DT_CLOCK_RATE      4000000
 #define ADC_STM32F10X_DT_CHANNEL           0
+
+#include ADD_CURRENT_DEV
+
+
+
+/***********************************/
+/********** adc_battery_dev ********/
+#define DT_DEV_NAME                        adc_battery_dev
+#define DT_DEV_MODULE                      adc_stm32f10x
+
+#define ADC_STM32F10X_DT_CLOCK_RATE      4000000
+#define ADC_STM32F10X_DT_CHANNEL           2
 
 #include ADD_CURRENT_DEV
 
@@ -87,7 +99,7 @@
 #define DT_DEV_MODULE                    gpio_stm32f10x
 
 #define GPIO_STM32F10X_DT_PORT         GPIO_STM32F10X_API_PORT_A
-#define GPIO_STM32F10X_DT_PINS             {3}
+#define GPIO_STM32F10X_DT_PINS             {1}
 #define GPIO_STM32F10X_DT_PINS_IDLE_STATE  {0}
 #define GPIO_STM32F10X_DT_MODE         GPIO_STM32F10X_API_MODE_OUT_PP
 

@@ -7,4 +7,5 @@ zOUT
 zOUT_history
 *.bak
 *.old
+*.autosave
 zIDE/
