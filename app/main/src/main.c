@@ -14,6 +14,7 @@
 #include "adc_api.h"
 #include "gpio_api.h"
 #include "rtc_api.h"
+#include "pwm_api.h"
 #include "pwr_management_api.h"
 
 #define DEBUG
@@ -26,6 +27,7 @@ extern struct dev_desc_t * motor_control_pin_dev;
 extern struct dev_desc_t * blink_led_dev;
 extern struct dev_desc_t * pwr_dev;
 extern struct dev_desc_t * rtc_dev;
+extern struct dev_desc_t * pwm_dev;
 
 // alpha = 0.1  = 1/10 ;   (1 - alpha) = 0.9
 #define SMOOTH_ALPHA_NUMERATOR    1
@@ -59,6 +61,7 @@ static uint8_t rtc_calibration_done = 0;
 static void init_hw(void)
 {
 	struct dev_desc_t * dev;
+	struct set_pwm_params pwm_params;
 
 	DEV_IOCTL_0_PARAMS(blink_led_dev, IOCTL_DEVICE_START);
 
@@ -73,6 +76,11 @@ static void init_hw(void)
 	DEV_IOCTL_0_PARAMS(adc_battery_dev, IOCTL_DEVICE_START);
 	DEV_IOCTL_0_PARAMS(motor_control_pin_dev, IOCTL_DEVICE_START);
 	DEV_IOCTL_0_PARAMS(motor_control_pin_dev, IOCTL_GPIO_PIN_CLEAR );
+
+	DEV_IOCTL_0_PARAMS(pwm_dev, IOCTL_DEVICE_START);
+	pwm_params.freq = 1000;
+	pwm_params.duty_cycle_mPercent = 25000;
+	DEV_IOCTL_1_PARAMS(pwm_dev, IOCTL_PWM_SET_PARAMS, &pwm_params);
 }
 
 
@@ -200,7 +208,7 @@ static void measurements_thread_func(void * aHandle)
 	os_stack_test(); //requires PRINTF_DBG
 	while (PRINTF_API_print_from_debug_buffer(64));
 
-	//while(1){os_delay_ms(1000);} // to remove, for dbg only
+	while(1){os_delay_ms(1000);} // to remove, for dbg only
 
 	DEV_IOCTL_1_PARAMS(rtc_dev, IOCTL_RTC_SET_WAKEUP_mSec, &wakeup_val_mSec);
 	DEV_IOCTL_0_PARAMS(pwr_dev, IOCTL_POWER_MANAGEMENT_ENTER_HIBERNATION);

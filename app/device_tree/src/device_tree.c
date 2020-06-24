@@ -1,6 +1,7 @@
 #include "_project.h"
 
 #include "dev_management_api.h"
+#include "dt_pin_control_stm32f10x.h"
 
 
 /***********************************/
@@ -43,7 +44,7 @@
 #define DT_DEV_MODULE                      adc_stm32f10x
 
 #define ADC_STM32F10X_DT_CLOCK_RATE      4000000
-#define ADC_STM32F10X_DT_CHANNEL           0
+#define ADC_STM32F10X_DT_INPUT_PIN     PIN_CONTROL_DT_STM32F10X_PIN_A00_ADC
 
 #include ADD_CURRENT_DEV
 
@@ -55,7 +56,7 @@
 #define DT_DEV_MODULE                      adc_stm32f10x
 
 #define ADC_STM32F10X_DT_CLOCK_RATE      4000000
-#define ADC_STM32F10X_DT_CHANNEL           2
+#define ADC_STM32F10X_DT_INPUT_PIN     PIN_CONTROL_DT_STM32F10X_PIN_A02_ADC
 
 #include ADD_CURRENT_DEV
 
@@ -115,6 +116,16 @@
 #define GPIO_STM32F10X_DT_PINS             {13}
 #define GPIO_STM32F10X_DT_PINS_IDLE_STATE  {0}
 #define GPIO_STM32F10X_DT_MODE         GPIO_STM32F10X_API_MODE_OUT_PP
+
+#include ADD_CURRENT_DEV
+
+
+/***********************************/
+/********** pwm_dev  ********/
+#define DT_DEV_NAME                      pwm_dev
+#define DT_DEV_MODULE                    pwm_stm32f10x
+
+#define PWM_STM32F10X_DT_OUTPUT_PIN     PIN_CONTROL_DT_STM32F10X_PIN_A08_PWM
 
 #include ADD_CURRENT_DEV
 
