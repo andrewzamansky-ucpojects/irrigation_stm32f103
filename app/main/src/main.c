@@ -39,19 +39,48 @@ extern struct dev_desc_t * pwm_dev;
 #define DELAY_BETWEEN_ADC_SAMPLES_mSEC   2
 static uint8_t rtc_calibration_done = 0;
 
-#define MOISTURE_LOW_THRESHOLD_mV  2100
+#define MOISTURE_LOW_THRESHOLD_mV  2250//2100
 
 // measures on voltage divider resistor with ~1/10 ratio so threshold = 4750mV
 #define BATTERY_THRESHOLD_mV  475
 
 #define STATUS_OK_DELAY 1000
-#define STATUS_LOW_BATTERY_DELAY 50
+#define STATUS_LOW_BATTERY_DELAY 100
 
 #define STANDBY_NORMAL_TIME  (12 * 60 * 60 * 1000) // 12hours
 
 // small standby time to increase chances that blinks or beeps will
 // be noticed by human
 #define STANDBY_LOW_BATTERY_TIME  (30 * 1000) // 30 seconds
+
+
+static void report_status(
+		uint32_t blink_beep_delay_ms, uint8_t times_to_blink_or_beep)
+{
+	uint8_t blink_beep_state;
+	uint8_t i;
+
+	blink_beep_state = 1;
+	for (i = 0; i < (times_to_blink_or_beep * 2); i++)
+	{
+		if (blink_beep_state)
+		{
+			DEV_IOCTL(blink_led_dev, IOCTL_GPIO_PIN_CLEAR );
+			DEV_IOCTL(pwm_dev, IOCTL_PWM_ENABLE_OUTPUT);
+		}
+		else
+		{
+			DEV_IOCTL(blink_led_dev, IOCTL_GPIO_PIN_SET );
+			DEV_IOCTL(pwm_dev, IOCTL_PWM_DISABLE_OUTPUT);
+		}
+		blink_beep_state = 1 - blink_beep_state;
+
+
+		os_delay_ms(blink_beep_delay_ms);
+	}
+
+}
+
 
 /**
  * init_hw()
@@ -63,24 +92,30 @@ static void init_hw(void)
 	struct dev_desc_t * dev;
 	struct set_pwm_params pwm_params;
 
-	DEV_IOCTL_0_PARAMS(blink_led_dev, IOCTL_DEVICE_START);
+	DEV_IOCTL(blink_led_dev, IOCTL_DEVICE_START);
 
 	dev = DEV_OPEN("semihosting_dev");
 	if (NULL != dev)
 	{
-		DEV_IOCTL_0_PARAMS(dev, IOCTL_DEVICE_START);
+		DEV_IOCTL(dev, IOCTL_DEVICE_START);
 		PRINTF_API_AddDebugOutput(dev);
 	}
 
-	DEV_IOCTL_0_PARAMS(adc_humidity_dev, IOCTL_DEVICE_START);
-	DEV_IOCTL_0_PARAMS(adc_battery_dev, IOCTL_DEVICE_START);
-	DEV_IOCTL_0_PARAMS(motor_control_pin_dev, IOCTL_DEVICE_START);
-	DEV_IOCTL_0_PARAMS(motor_control_pin_dev, IOCTL_GPIO_PIN_CLEAR );
+	DEV_IOCTL(adc_humidity_dev, IOCTL_DEVICE_START);
+	DEV_IOCTL(adc_battery_dev, IOCTL_DEVICE_START);
+	DEV_IOCTL(motor_control_pin_dev, IOCTL_DEVICE_START);
+	DEV_IOCTL(motor_control_pin_dev, IOCTL_GPIO_PIN_CLEAR );
 
-	DEV_IOCTL_0_PARAMS(pwm_dev, IOCTL_DEVICE_START);
-	pwm_params.freq = 1000;
-	pwm_params.duty_cycle_mPercent = 25000;
-	DEV_IOCTL_1_PARAMS(pwm_dev, IOCTL_PWM_SET_PARAMS, &pwm_params);
+	DEV_IOCTL(pwm_dev, IOCTL_DEVICE_START);
+	pwm_params.freq = 2000;
+	pwm_params.duty_cycle_mPercent = 50000;
+	DEV_IOCTL(pwm_dev, IOCTL_PWM_SET_PARAMS, &pwm_params);
+//	while (1) // just for speaker test
+//	{
+//		report_status(500, 3);
+//		os_delay_ms(5000);
+//	}
+
 }
 
 
@@ -102,7 +137,7 @@ static void make_measurements(uint32_t *humidity, uint32_t *battery_level)
 
 	for (cnt = 0; cnt < NUM_OF_MEASUREMENTS; cnt++)
 	{
-		DEV_IOCTL_1_PARAMS(adc_battery_dev,
+		DEV_IOCTL(adc_battery_dev,
 				IOCTL_ADC_GET_CURRENT_VALUE_mV, &adc_battery_val);
 		PRINTF_DBG("%05d  bat = %d.%03dV; ",
 				cnt, adc_battery_val / 1000, adc_battery_val % 1000);
@@ -113,7 +148,7 @@ static void make_measurements(uint32_t *humidity, uint32_t *battery_level)
 		PRINTF_DBG("bat_avg = %d.%03dV\r\n",
 				battery_avg_val / 1000, battery_avg_val % 1000);
 
-		DEV_IOCTL_1_PARAMS(adc_humidity_dev,
+		DEV_IOCTL(adc_humidity_dev,
 				IOCTL_ADC_GET_CURRENT_VALUE_mV, &adc_humidity_val);
 		PRINTF_DBG("%d.%03dV; ",
 				adc_humidity_val / 1000, adc_humidity_val % 1000);
@@ -143,33 +178,6 @@ static void make_measurements(uint32_t *humidity, uint32_t *battery_level)
 }
 
 
-static void blink_status()
-{
-	uint8_t blink_state;
-	uint8_t blink_delay_ms;
-	uint8_t i;
-
-	blink_state = 0;
-	blink_delay_ms = STATUS_LOW_BATTERY_DELAY;
-	for (i = 0; i < 10; i++)
-	{
-		if (blink_state)
-		{
-			DEV_IOCTL_0_PARAMS(blink_led_dev, IOCTL_GPIO_PIN_SET );
-		}
-		else
-		{
-			DEV_IOCTL_0_PARAMS(blink_led_dev, IOCTL_GPIO_PIN_CLEAR );
-		}
-		blink_state = 1 - blink_state;
-
-
-		os_delay_ms(blink_delay_ms);
-	}
-
-}
-
-
 /**
  * measurements_thread_func()
  *
@@ -186,17 +194,17 @@ static void measurements_thread_func(void * aHandle)
 
 	if (battery_level < BATTERY_THRESHOLD_mV)
 	{
-		blink_status();
+		report_status(STATUS_LOW_BATTERY_DELAY, 3);
 		wakeup_val_mSec = STANDBY_LOW_BATTERY_TIME;
 	}
 	else
 	{
 		if (MOISTURE_LOW_THRESHOLD_mV > humidity)
 		{
-			DEV_IOCTL_0_PARAMS(motor_control_pin_dev, IOCTL_GPIO_PIN_SET );
+			DEV_IOCTL(motor_control_pin_dev, IOCTL_GPIO_PIN_SET );
 		}
 		os_delay_ms(3000);
-		DEV_IOCTL_0_PARAMS(motor_control_pin_dev, IOCTL_GPIO_PIN_CLEAR );
+		DEV_IOCTL(motor_control_pin_dev, IOCTL_GPIO_PIN_CLEAR );
 		wakeup_val_mSec = STANDBY_NORMAL_TIME;
 	}
 
@@ -208,10 +216,10 @@ static void measurements_thread_func(void * aHandle)
 	os_stack_test(); //requires PRINTF_DBG
 	while (PRINTF_API_print_from_debug_buffer(64));
 
-	while(1){os_delay_ms(1000);} // to remove, for dbg only
+	//while(1){os_delay_ms(1000);} // to remove, for dbg only
 
-	DEV_IOCTL_1_PARAMS(rtc_dev, IOCTL_RTC_SET_WAKEUP_mSec, &wakeup_val_mSec);
-	DEV_IOCTL_0_PARAMS(pwr_dev, IOCTL_POWER_MANAGEMENT_ENTER_HIBERNATION);
+	DEV_IOCTL(rtc_dev, IOCTL_RTC_SET_WAKEUP_mSec, &wakeup_val_mSec);
+	DEV_IOCTL(pwr_dev, IOCTL_POWER_MANAGEMENT_ENTER_HIBERNATION);
 	// should not reach here
 	while(1)
 	{
@@ -229,9 +237,9 @@ static void measurements_thread_func(void * aHandle)
 static void rtc_calibration_thread_func(void * aHandle)
 {
 
-	DEV_IOCTL_0_PARAMS(pwr_dev, IOCTL_DEVICE_START);//should be before RTC
-	DEV_IOCTL_0_PARAMS(rtc_dev, IOCTL_DEVICE_START);
-	DEV_IOCTL_0_PARAMS(rtc_dev, IOCTL_RTC_CALIBRATE);
+	DEV_IOCTL(pwr_dev, IOCTL_DEVICE_START);//should be before RTC
+	DEV_IOCTL(rtc_dev, IOCTL_DEVICE_START);
+	DEV_IOCTL(rtc_dev, IOCTL_RTC_CALIBRATE);
 
 	rtc_calibration_done = 1;
 	while(1)
@@ -251,7 +259,7 @@ int main(void)
 
 	dev = DEV_OPEN("soc_clock_control_dev");
 	if (NULL == dev) goto error;
-	DEV_IOCTL_0_PARAMS(dev , IOCTL_DEVICE_START  );
+	DEV_IOCTL(dev , IOCTL_DEVICE_START  );
 
 	dev = DEV_OPEN("systick_dev");
 	if (NULL == dev) goto error;
@@ -273,5 +281,3 @@ int main(void)
 error :
 	while(1);
 }
-
-
