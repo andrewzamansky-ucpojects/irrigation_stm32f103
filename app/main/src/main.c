@@ -29,14 +29,22 @@ extern struct dev_desc_t * pwr_dev;
 extern struct dev_desc_t * rtc_dev;
 extern struct dev_desc_t * pwm_dev;
 
+
 // alpha = 0.1  = 1/10 ;   (1 - alpha) = 0.9
 #define SMOOTH_ALPHA_NUMERATOR    1
 #define SMOOTH_ALPHA_DENOMERATOR  10
 #define SMOOTH_ALPHA_DENOMERATOR_MINUS_NUMERATOR  \
 				(SMOOTH_ALPHA_DENOMERATOR - SMOOTH_ALPHA_NUMERATOR)
 
-#define NUM_OF_MEASUREMENTS   100 // 10
-#define DELAY_BETWEEN_ADC_SAMPLES_mSEC   2
+//#define TEST_MEASUREMENTS
+#if defined(TEST_MEASUREMENTS)
+	#define NUM_OF_MEASUREMENTS   0xffffff // 10
+	#define DELAY_BETWEEN_ADC_SAMPLES_mSEC   2000
+#else
+	#define NUM_OF_MEASUREMENTS   100 // 10
+	#define DELAY_BETWEEN_ADC_SAMPLES_mSEC   2
+#endif
+
 static uint8_t rtc_calibration_done = 0;
 
 #define MOISTURE_LOW_THRESHOLD_mV  2250//2100
@@ -132,7 +140,7 @@ static void make_measurements(uint32_t *humidity, uint32_t *battery_level)
 	uint32_t battery_avg_val;
 	uint32_t smoothed_adc_humidity_val;
 
-	smoothed_adc_humidity_val = 500;// not relevant for avaraging
+	smoothed_adc_humidity_val = 500;// not relevant for averaging
 	battery_avg_val = 0;
 
 	for (cnt = 0; cnt < NUM_OF_MEASUREMENTS; cnt++)
@@ -216,7 +224,7 @@ static void measurements_thread_func(void * aHandle)
 	os_stack_test(); //requires PRINTF_DBG
 	while (PRINTF_API_print_from_debug_buffer(64));
 
-	//while(1){os_delay_ms(1000);} // to remove, for dbg only
+	while(1){os_delay_ms(1000);} // to remove, for dbg only
 
 	DEV_IOCTL(rtc_dev, IOCTL_RTC_SET_WAKEUP_mSec, &wakeup_val_mSec);
 	DEV_IOCTL(pwr_dev, IOCTL_POWER_MANAGEMENT_ENTER_HIBERNATION);
