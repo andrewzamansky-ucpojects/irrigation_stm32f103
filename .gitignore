@@ -9,3 +9,4 @@ zOUT_history
 *.old
 *.autosave
 zIDE/
+*-backups/
